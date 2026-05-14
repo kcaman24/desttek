@@ -120,7 +120,7 @@ const authLimiter = rateLimit({
 // ── Routes ────────────────────────────────────────────────────
 app.use('/api', publicLimiter, apiRoutes);
 app.get('/admin', (req, res) => res.redirect(301, '/panel'));
-app.use('/admin/auth', authLimiter, adminRoutes);
+app.use('/admin/auth/login', authLimiter);
 app.use('/admin', adminLimiter, adminRoutes);
 
 // ── Static files ───────────────────────────────────────────────
