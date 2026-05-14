@@ -43,11 +43,11 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'cdnjs.cloudflare.com', 'static.cloudflareinsights.com'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
       imgSrc: ["'self'", 'data:'],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
+      connectSrc: ["'self'", 'cloudflareinsights.com'],
+      fontSrc: ["'self'", 'fonts.gstatic.com'],
       objectSrc: ["'none'"],
       frameAncestors: ["'none'"],
     },
@@ -118,6 +118,7 @@ const authLimiter = rateLimit({
 
 // ── Routes ────────────────────────────────────────────────────
 app.use('/api', publicLimiter, apiRoutes);
+app.get('/admin', (req, res) => res.redirect(301, '/panel'));
 app.use('/admin/auth', authLimiter, adminRoutes);
 app.use('/admin', adminLimiter, adminRoutes);
 
