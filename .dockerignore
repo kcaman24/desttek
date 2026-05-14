@@ -1,0 +1,16 @@
+# Git
+.git
+.gitignore
+
+# Node modules (built in image)
+backend/node_modules
+
+# Local env — never bake secrets into the image
+backend/.env
+
+# Data (persisted via volume, not baked in)
+backend/data
+
+# Dev artifacts
+**/*.log
+**/.DS_Store
