@@ -6,7 +6,7 @@ WORKDIR /build
 RUN apk add --no-cache python3 make g++
 
 COPY backend/package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # ── Production stage ────────────────────────────────────────────
 FROM node:20-alpine AS production
