@@ -151,7 +151,7 @@ const queries = {
   ).all(categoryId),
 
   getRecordById: (id) => db.prepare(
-    'SELECT r.id, r.name, r.category_id, r.updated_at FROM records r WHERE r.id = ?'
+    'SELECT r.id, r.name, r.category_id, r.position, r.updated_at FROM records r WHERE r.id = ?'
   ).get(id),
 
   searchRecords: (query) => db.prepare(`
