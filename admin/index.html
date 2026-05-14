@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>DESTTEK — Admin</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[data-theme="dark"]{--bg:#0f0f11;--surface:#17171a;--surface2:#1e1e23;--border:#2e2e38;--border2:#3a3a48;--accent:#7c6af7;--accent2:#a598ff;--accent-dim:rgba(124,106,247,.12);--accent-dim2:rgba(124,106,247,.22);--text:#e8e8f0;--text2:#9090a8;--text3:#5a5a72;--danger:#f06a6a;--danger-dim:rgba(240,106,106,.12);--success:#5bcf8a;--success-dim:rgba(91,207,138,.14);--shadow:0 8px 32px rgba(0,0,0,.45)}
+[data-theme="light"]{--bg:#f0f0f5;--surface:#fff;--surface2:#f5f5fa;--border:#e0e0ec;--border2:#cacad8;--accent:#6254e8;--accent2:#4e41cc;--accent-dim:rgba(98,84,232,.10);--accent-dim2:rgba(98,84,232,.20);--text:#1a1a2e;--text2:#4a4a68;--text3:#8888aa;--danger:#d94f4f;--danger-dim:rgba(217,79,79,.10);--success:#2aaa60;--success-dim:rgba(42,170,96,.12);--shadow:0 4px 24px rgba(80,70,160,.10)}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;transition:background .25s,color .25s}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+#app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:36px;width:min(360px,92vw);box-shadow:var(--shadow)}
+.login-box h1{font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
+.login-box p{color:var(--text3);font-size:13px;margin-bottom:24px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.form-group input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:all .2s}
+.form-group input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.login-err{color:var(--danger);font-size:12px;margin-top:10px;min-height:18px}
+.btn-full{width:100%;padding:11px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all .18s;margin-top:6px}
+.btn-full:hover{opacity:.88}
+.btn-full:disabled{opacity:.5;cursor:not-allowed}
+
+/* HEADER */
+#header{height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0;box-shadow:var(--shadow);z-index:100}
+#logo{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--accent);white-space:nowrap}
+#logo small{color:var(--text3);font-size:11px;margin-left:4px}
+#search-wrap{flex:1;max-width:360px;margin-left:auto;position:relative}
+#search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:7px 28px 7px 34px;color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border-color .2s}
+#search-input:focus{border-color:var(--accent)}
+.s-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+#search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 4px;border-radius:4px;display:none;line-height:1}
+#search-clear:hover{color:var(--danger)}
+.hbtn{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:all .18s;white-space:nowrap}
+.hbtn:hover{border-color:var(--accent);color:var(--accent2);background:var(--accent-dim)}
+#save-btn{background:var(--accent);border-color:var(--accent);color:#fff}
+#save-btn:hover{opacity:.85}
+#save-btn.dirty{animation:psave 1.8s ease infinite}
+#save-btn.saved{background:var(--success);border-color:var(--success)}
+@keyframes psave{0%,100%{box-shadow:0 0 0 0 rgba(124,106,247,0)}50%{box-shadow:0 0 0 5px rgba(124,106,247,.2)}}
+#theme-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0}
+#theme-btn:hover{border-color:var(--accent);color:var(--accent2);background:var(--accent-dim)}
+
+/* TABS */
+#tabs-bar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:flex-end;padding:0 14px;gap:2px;flex-shrink:0;overflow-x:auto;min-height:46px}
+#tabs-bar::-webkit-scrollbar{height:3px}
+.tab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px 7px 0 0;border:1px solid transparent;border-bottom:none;background:transparent;color:var(--text3);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none}
+.tab:hover{color:var(--text2);background:var(--surface2)}
+.tab.active{color:var(--accent);background:var(--bg);border-color:var(--border);border-bottom-color:var(--bg)}
+.tab-acts{display:flex;gap:2px;opacity:0;transition:opacity .15s}
+.tab:hover .tab-acts{opacity:1}
+.tact{width:16px;height:16px;border-radius:3px;background:transparent;border:none;color:var(--text3);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.tact.e:hover{background:var(--accent-dim);color:var(--accent2)}
+.tact.d:hover{background:var(--danger-dim);color:var(--danger)}
+.tab-add{padding:6px 10px;margin-bottom:2px;border-radius:7px;border:1px dashed var(--border2);background:transparent;color:var(--text3);font-size:18px;line-height:1;cursor:pointer;transition:all .18s;flex-shrink:0}
+.tab-add:hover{border-color:var(--accent);color:var(--accent2);background:var(--accent-dim)}
+.tname-inp{background:transparent;border:none;outline:none;color:var(--accent);font-family:inherit;font-size:13px;font-weight:500;min-width:60px;max-width:180px}
+
+/* BODY */
+#body{flex:1;display:flex;overflow:hidden}
+#sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+#sidebar-head{padding:12px 12px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+#sidebar-cat-lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;flex:1}
+.ibtn{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;font-size:14px;flex-shrink:0}
+.ibtn:hover{border-color:var(--accent);color:var(--accent2);background:var(--accent-dim)}
+#sidebar-list{flex:1;overflow-y:auto;padding:6px}
+.sitem{display:flex;align-items:center;border-radius:7px;cursor:pointer;transition:all .13s;margin-bottom:2px;border:1px solid transparent}
+.sitem:hover{background:var(--surface2)}
+.sitem.active{background:var(--accent-dim);border-color:var(--accent-dim2)}
+.sitem-text{flex:1;padding:9px 10px;font-size:13px;color:var(--text2);line-height:1.35;word-break:break-word}
+.sitem.active .sitem-text{color:var(--accent);font-weight:500}
+.sitem-acts{display:flex;gap:2px;padding-right:6px;opacity:0;transition:opacity .13s}
+.sitem:hover .sitem-acts,.sitem.active .sitem-acts{opacity:1}
+.sibtn{width:22px;height:22px;border-radius:4px;border:none;background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .13s}
+.sibtn.e:hover{background:var(--accent-dim);color:var(--accent2)}
+.sibtn.d:hover{background:var(--danger-dim);color:var(--danger)}
+#imp-lbl{width:100%;padding:10px 12px}
+.imp-btn{width:100%;padding:8px;border-radius:7px;border:1px dashed var(--border2);background:transparent;color:var(--text3);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .18s}
+.imp-btn:hover{border-color:var(--accent);color:var(--accent2);background:var(--accent-dim)}
+
+/* DETAIL */
+#detail{flex:1;overflow:hidden;display:flex;flex-direction:column;background:var(--bg)}
+#detail-head{padding:14px 22px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--surface)}
+#detail-title{font-size:15px;font-weight:600;color:var(--text);flex:1;background:transparent;border:none;outline:none;font-family:inherit;border-bottom:1px solid transparent;transition:border-color .18s;padding-bottom:1px}
+#detail-title:hover{border-bottom-color:var(--border2)}
+#detail-title:focus{border-bottom-color:var(--accent)}
+#detail-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);white-space:nowrap}
+#detail-meta{font-size:11px;color:var(--text3);white-space:nowrap}
+#detail-body{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+.frow{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .18s}
+.frow:focus-within{border-color:var(--accent-dim2)}
+.flabel{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.flabel-name{flex:1;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;background:transparent;border:none;outline:none;font-family:inherit;transition:color .15s}
+.flabel-name:focus{color:var(--accent2)}
+.flabel-name[readonly]{cursor:default}
+.fcopy{font-family:'DM Mono',monospace;font-size:10px;padding:3px 7px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;transition:all .15s}
+.fcopy:hover{border-color:var(--accent);color:var(--accent2)}
+.fcopy.ok{border-color:var(--success);color:var(--success)}
+.fdel{font-size:11px;cursor:pointer;color:var(--text3);border:none;background:none;padding:2px 6px;border-radius:4px;transition:all .15s;opacity:0}
+.frow:hover .fdel{opacity:1}
+.fdel:hover{background:var(--danger-dim);color:var(--danger)}
+.fcontent{padding:10px 14px}
+.fcontent textarea{width:100%;min-height:90px;max-height:340px;background:transparent;border:none;outline:none;color:var(--text);font-family:inherit;font-size:13.5px;line-height:1.65;resize:vertical}
+.fcontent input[type=text]{width:100%;background:transparent;border:none;outline:none;color:var(--accent);font-family:inherit;font-size:14px;font-weight:500}
+#add-field-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;border:1px dashed var(--border2);border-radius:10px;background:transparent;color:var(--text3);font-family:inherit;font-size:13px;cursor:pointer;transition:all .18s;width:100%}
+#add-field-btn:hover{border-color:var(--accent);color:var(--accent2);background:var(--accent-dim)}
+.epanel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--text3);text-align:center;padding:40px}
+.epanel svg{opacity:.2}.epanel h2{font-size:18px;font-weight:600;color:var(--text2)}.epanel p{font-size:13px;max-width:300px;line-height:1.6}
+.esidebar{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--text3);padding:24px;text-align:center}
+.esidebar svg{opacity:.25}.esidebar p{font-size:12px;line-height:1.5}
+
+/* TOAST */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:9px 18px;font-size:13px;color:var(--text);opacity:0;transition:all .25s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:var(--shadow)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.s{border-color:var(--success);color:var(--success);background:var(--success-dim)}
+#toast.e{border-color:var(--danger);color:var(--danger);background:var(--danger-dim)}
+
+/* MODALS */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s}
+.mov.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:24px;width:min(420px,92vw);transform:translateY(14px) scale(.97);transition:transform .22s;box-shadow:var(--shadow)}
+.mov.open .modal{transform:none}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:18px;color:var(--text)}
+.mlabel{display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;margin-top:12px}
+.mlabel:first-of-type{margin-top:0}
+.minput{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border-color .18s}
+.minput:focus{border-color:var(--accent)}
+.rrow{display:flex;gap:12px;margin-top:6px}
+.rrow label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer}
+.macts{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.btn{padding:8px 16px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:var(--border2);color:var(--text)}
+.btn.ac{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ac:hover{opacity:.85}
+.btn.dn{background:var(--danger-dim);border-color:rgba(217,79,79,.25);color:var(--danger)}
+.btn.dn:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+mark{background:var(--accent-dim2);color:var(--accent2);border-radius:2px;padding:0 1px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>DESTTEK</h1>
+    <p>Admin Panel — Giriş Yapın</p>
+    <div class="form-group"><label>Kullanıcı Adı</label><input type="text" id="l-user" autocomplete="username" placeholder="admin"></div>
+    <div class="form-group"><label>Şifre</label><input type="password" id="l-pass" autocomplete="current-password" placeholder="••••••••"></div>
+    <div class="login-err" id="l-err"></div>
+    <button class="btn-full" id="l-btn" onclick="doLogin()">Giriş Yap</button>
+  </div>
+</div>
+
+<!-- MAIN APP (hidden until login) -->
+<div id="main-app" style="display:none;flex-direction:column;height:100vh;overflow:hidden">
+
+  <div id="header">
+    <div id="logo">DESTTEK<small>admin</small></div>
+    <div id="search-wrap">
+      <span class="s-ico"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+      <input type="text" id="search-input" placeholder="Başlık ara…">
+      <button id="search-clear">×</button>
+    </div>
+    <button class="hbtn" id="save-btn">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      <span id="save-lbl">Kaydet</span>
+    </button>
+    <button class="hbtn" id="export-btn">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export
+    </button>
+    <button class="hbtn" id="backup-btn">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> DB Backup
+    </button>
+    <label class="hbtn" style="cursor:pointer">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Import
+      <input type="file" id="import-file" accept=".json" style="display:none">
+    </label>
+    <button id="theme-btn" title="Tema">🌙</button>
+    <button class="hbtn" id="logout-btn">Çıkış</button>
+  </div>
+
+  <div id="tabs-bar"><button class="tab-add" id="add-tab-btn">+</button></div>
+
+  <div id="body">
+    <div id="sidebar">
+      <div id="sidebar-head">
+        <span id="sidebar-cat-lbl">Başlıklar</span>
+        <button class="ibtn" id="add-rec-btn" title="Yeni Kayıt">+</button>
+      </div>
+      <div id="sidebar-list"></div>
+      <div id="imp-lbl">
+        <label class="imp-btn">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          CSV/Excel Başlık Import
+          <input type="file" id="sidebar-import-file" accept=".xlsx,.xls,.csv" style="display:none">
+        </label>
+      </div>
+    </div>
+    <div id="detail"></div>
+  </div>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<!-- MODALS -->
+<div class="mov" id="mc"><div class="modal"><h3 id="mc-t">Silme Onayı</h3><p id="mc-m" style="color:var(--text2);font-size:13px;line-height:1.6;margin-bottom:4px"></p><div class="macts"><button class="btn" id="mc-no">İptal</button><button class="btn dn" id="mc-yes">Evet, Sil</button></div></div></div>
+<div class="mov" id="mt"><div class="modal"><h3>Yeni Kategori</h3><span class="mlabel">Kategori Adı</span><input class="minput" type="text" id="mt-n" placeholder="ör. WrongCase"><div class="macts"><button class="btn" id="mt-no">İptal</button><button class="btn ac" id="mt-yes">Ekle</button></div></div></div>
+<div class="mov" id="mr"><div class="modal"><h3>Yeni Kayıt</h3><span class="mlabel">Başlık</span><input class="minput" type="text" id="mr-n" placeholder="ör. Şikayet Fatura Ulaşmama"><div class="macts"><button class="btn" id="mr-no">İptal</button><button class="btn ac" id="mr-yes">Ekle</button></div></div></div>
+<div class="mov" id="mf"><div class="modal"><h3>Yeni Alan Ekle</h3><span class="mlabel">Alan Adı</span><input class="minput" type="text" id="mf-n" placeholder="ör. Çözüm Adımları"><span class="mlabel">Tip</span><div class="rrow"><label><input type="radio" name="ftype" value="textarea" checked> Çok Satırlı</label><label><input type="radio" name="ftype" value="input"> Tek Satır</label></div><div class="macts"><button class="btn" id="mf-no">İptal</button><button class="btn ac" id="mf-yes">Ekle</button></div></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const API_BASE = '/admin';
+let categories = [];
+let activeTab = null;
+let activeRecord = null;
+let currentRecord = null;
+let dirty = false;
+let confirmCb = null;
+let theme = localStorage.getItem('dt_theme') || 'dark';
+
+// ── UTILS ─────────────────────────────────────────────────────
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function now(){return new Date().toLocaleDateString('tr-TR')}
+let _tt;
+function toast(msg,cls=''){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+(cls||'');clearTimeout(_tt);_tt=setTimeout(()=>el.className='',2500)}
+function openM(id){document.getElementById(id).classList.add('open')}
+function closeM(id){document.getElementById(id).classList.remove('open')}
+function q(){return document.getElementById('search-input').value.toLowerCase().trim()}
+function hi(t,sq){if(!sq)return esc(t);return esc(t).replace(new RegExp('('+sq.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>')}
+
+// ── API ───────────────────────────────────────────────────────
+async function api(method, path, body){
+  const opts = { method, credentials: 'include', headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API_BASE + path, opts);
+  if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+// ── AUTH ──────────────────────────────────────────────────────
+async function doLogin(){
+  const btn=document.getElementById('l-btn'), err=document.getElementById('l-err');
+  const username=document.getElementById('l-user').value.trim();
+  const password=document.getElementById('l-pass').value;
+  if(!username||!password){err.textContent='Kullanıcı adı ve şifre gerekli.';return}
+  btn.disabled=true; btn.textContent='Giriş yapılıyor…'; err.textContent='';
+  try{
+    const res=await fetch('/admin/auth/login',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+    const data=await res.json();
+    if(!res.ok){err.textContent=data.error||'Giriş başarısız.';return}
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('main-app').style.display='flex';
+    applyTheme(theme);
+    await loadCategories();
+  }catch(e){err.textContent='Sunucuya bağlanılamadı.'}
+  finally{btn.disabled=false;btn.textContent='Giriş Yap'}
+}
+document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+document.getElementById('l-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('l-pass').focus()});
+
+async function logout(){
+  try{await fetch('/admin/auth/logout',{method:'POST',credentials:'include'});}catch(_){}
+  location.reload();
+}
+document.getElementById('logout-btn').addEventListener('click',()=>{if(confirm('Çıkış yapmak istiyor musunuz?'))logout()});
+
+// Auto-login via httpOnly cookie
+async function tryAutoLogin(){
+  try{
+    const res=await fetch('/admin/auth/verify',{method:'POST',credentials:'include'});
+    if(res.ok){document.getElementById('login-screen').style.display='none';document.getElementById('main-app').style.display='flex';applyTheme(theme);await loadCategories();}
+  }catch(_){}
+}
+
+// ── THEME ─────────────────────────────────────────────────────
+function applyTheme(t){theme=t;localStorage.setItem('dt_theme',t);document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-btn').textContent=t==='dark'?'🌙':'☀️'}
+document.getElementById('theme-btn').addEventListener('click',()=>applyTheme(theme==='dark'?'light':'dark'));
+
+// ── DIRTY ─────────────────────────────────────────────────────
+function markDirty(){dirty=true;const b=document.getElementById('save-btn'),l=document.getElementById('save-lbl');b.classList.add('dirty');b.classList.remove('saved');l.textContent='Kaydet *'}
+function clearDirty(){dirty=false;const b=document.getElementById('save-btn'),l=document.getElementById('save-lbl');b.classList.remove('dirty');b.classList.add('saved');l.textContent='Kaydedildi ✓';setTimeout(()=>b.classList.remove('saved'),2500)}
+
+// ── LOAD DATA ─────────────────────────────────────────────────
+async function loadCategories(){
+  try{const{data}=await api('GET','/categories');categories=data||[];renderTabs();if(categories.length>0&&!activeTab){activeTab=categories[0].id;renderTabs();renderSidebar();}}
+  catch(e){toast('Kategoriler yüklenemedi','e')}
+}
+
+// ── TABS ──────────────────────────────────────────────────────
+function renderTabs(){
+  const bar=document.getElementById('tabs-bar');bar.innerHTML='';
+  categories.forEach(cat=>{
+    const el=document.createElement('button');el.className='tab'+(cat.id===activeTab?' active':'');
+    el.innerHTML=`<span class="tname">${esc(cat.name)}</span><span class="tab-acts"><button class="tact e" title="Düzenle">✎</button><button class="tact d" title="Sil">✕</button></span>`;
+    el.addEventListener('click',e=>{if(e.target.closest('.tab-acts'))return;activeTab=cat.id;activeRecord=null;currentRecord=null;renderTabs();renderSidebar();renderDetail();});
+    el.querySelector('.tact.e').addEventListener('click',e=>{e.stopPropagation();tabRename(cat,el);});
+    el.querySelector('.tact.d').addEventListener('click',e=>{e.stopPropagation();confirmDel(`"${cat.name}" kategorisini ve tüm kayıtlarını silmek istiyor musunuz?`,async()=>{try{await api('DELETE',`/categories/${cat.id}`);categories=categories.filter(c=>c.id!==cat.id);if(activeTab===cat.id){activeTab=categories[0]?.id||null;activeRecord=null;currentRecord=null;}renderTabs();renderSidebar();renderDetail();toast('Kategori silindi','s')}catch(err){toast(err.message,'e')}});});
+    bar.appendChild(el);
+  });
+  const add=document.createElement('button');add.className='tab-add';add.textContent='+';add.title='Yeni Kategori';
+  add.addEventListener('click',()=>{document.getElementById('mt-n').value='';openM('mt');setTimeout(()=>document.getElementById('mt-n').focus(),100);});
+  bar.appendChild(add);
+}
+function tabRename(cat,el){
+  const span=el.querySelector('.tname');const inp=document.createElement('input');inp.className='tname-inp';inp.value=cat.name;span.replaceWith(inp);inp.focus();inp.select();
+  const done=async()=>{const v=inp.value.trim();if(v&&v!==cat.name){try{await api('PUT',`/categories/${cat.id}`,{name:v,position:cat.position});cat.name=v;toast('Kategori güncellendi','s')}catch(err){toast(err.message,'e')}}renderTabs();};
+  inp.addEventListener('blur',done);inp.addEventListener('keydown',e=>{if(e.key==='Enter')done();if(e.key==='Escape')renderTabs();});
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────────
+async function renderSidebar(){
+  const list=document.getElementById('sidebar-list'),lbl=document.getElementById('sidebar-cat-lbl');list.innerHTML='';
+  if(!activeTab){lbl.textContent='Başlıklar';list.innerHTML='<div class="esidebar"><svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><p>Bir kategori seçin</p></div>';return;}
+  const cat=categories.find(c=>c.id===activeTab);lbl.textContent=cat?.name||'Başlıklar';
+  try{
+    const{data}=await api('GET',`/categories/${activeTab}/records`);
+    const sq=q();const recs=sq?data.filter(r=>r.name.toLowerCase().includes(sq)):data;
+    if(!recs.length){list.innerHTML='<div class="esidebar"><svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><p>'+(sq?'Sonuç bulunamadı.':'Kayıt yok.<br>+ ile ekleyin.')+'</p></div>';return;}
+    recs.forEach(rec=>{
+      const el=document.createElement('div');el.className='sitem'+(rec.id===activeRecord?' active':'');
+      el.innerHTML=`<div class="sitem-text">${hi(rec.name,sq)}</div><div class="sitem-acts"><button class="sibtn e" title="Düzenle">✎</button><button class="sibtn d" title="Sil">✕</button></div>`;
+      el.querySelector('.sitem-text').addEventListener('click',()=>loadRecord(rec.id));
+      el.querySelector('.sibtn.e').addEventListener('click',e=>{e.stopPropagation();sidebarRename(rec,el);});
+      el.querySelector('.sibtn.d').addEventListener('click',e=>{e.stopPropagation();confirmDel(`"${rec.name}" kaydını silmek istiyor musunuz?`,async()=>{try{await api('DELETE',`/records/${rec.id}`);if(activeRecord===rec.id){activeRecord=null;currentRecord=null;renderDetail();}renderSidebar();toast('Kayıt silindi','s')}catch(err){toast(err.message,'e')}});});
+      list.appendChild(el);
+    });
+  }catch(e){list.innerHTML='<div class="esidebar"><p>Yüklenemedi.</p></div>'}
+}
+function sidebarRename(rec,el){
+  const td=el.querySelector('.sitem-text');const inp=document.createElement('input');inp.type='text';inp.value=rec.name;inp.style.cssText='background:transparent;border:none;outline:none;color:var(--accent);font-family:inherit;font-size:13px;font-weight:500;width:100%;padding:0';
+  td.innerHTML='';td.appendChild(inp);inp.focus();inp.select();
+  const done=async()=>{const v=inp.value.trim();if(v&&v!==rec.name){try{await api('PUT',`/records/${rec.id}`,{name:v});rec.name=v;if(activeRecord===rec.id&&currentRecord){currentRecord.name=v;document.getElementById('detail-title').value=v;}toast('Güncellendi','s')}catch(err){toast(err.message,'e')}}renderSidebar();};
+  inp.addEventListener('blur',done);inp.addEventListener('keydown',e=>{if(e.key==='Enter')done();if(e.key==='Escape')renderSidebar();});
+}
+
+// ── DETAIL ────────────────────────────────────────────────────
+async function loadRecord(id){
+  activeRecord=id;dirty=false;
+  document.querySelectorAll('.sitem').forEach(s=>{s.classList.toggle('active',s.querySelector('.sitem-text')?.textContent.trim()===id||false)});
+  renderSidebar();
+  const det=document.getElementById('detail');det.innerHTML='<div class="epanel"><div style="width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto"></div></div>';
+  try{const{data}=await api('GET',`/records/${id}`);currentRecord=data;renderDetail();}
+  catch(e){det.innerHTML='<div class="epanel"><p>Yüklenemedi.</p></div>'}
+}
+
+function renderDetail(){
+  const det=document.getElementById('detail');det.innerHTML='';
+  if(!activeTab){det.innerHTML='<div class="epanel"><svg width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><h2>Kategori Yok</h2><p>+ ile kategori ekleyin.</p></div>';return;}
+  if(!currentRecord){det.innerHTML='<div class="epanel"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg><p>Kayıt seçin veya <strong>+</strong> ile ekleyin.</p></div>';return;}
+  const rec=currentRecord;
+  const head=document.createElement('div');head.id='detail-head';
+  head.innerHTML=`<input id="detail-title" type="text" value="${esc(rec.name)}" title="Başlık"><div id="detail-id">ID:${rec.id.substring(0,8)}…</div><div id="detail-meta">${rec.updated_at?'Güncelleme: '+new Date(rec.updated_at).toLocaleDateString('tr-TR'):''}</div>`;
+  det.appendChild(head);
+  head.querySelector('#detail-title').addEventListener('input',function(){if(currentRecord)currentRecord.name=this.value;markDirty();});
+
+  const body=document.createElement('div');body.id='detail-body';
+  (rec.fields||[]).forEach((field,fi)=>{
+    const isFixed=!!field.is_fixed;const isCopy=field.label==='KAYIT İÇERİĞİ';
+    const row=document.createElement('div');row.className='frow';
+    row.innerHTML=`<div class="flabel"><input class="flabel-name"${isFixed?' readonly':''} value="${esc(field.label)}" title="${isFixed?'Sabit alan':'Alan adını düzenle'}">
+      ${isCopy?`<button class="fcopy">Kopyala</button>`:''}
+      ${!isFixed?`<button class="fdel" title="Alanı Sil">✕ Sil</button>`:''}</div>
+      <div class="fcontent">${field.type==='textarea'?`<textarea class="fval" placeholder="${esc(field.label)} girin…">${esc(field.value||'')}</textarea>`:`<input type="text" class="fval" placeholder="${esc(field.label)} girin…" value="${esc(field.value||'')}">`}</div>`;
+    body.appendChild(row);
+    if(!isFixed)row.querySelector('.flabel-name').addEventListener('input',function(){field.label=this.value.toUpperCase();markDirty();});
+    const inp=row.querySelector('.fval');
+    inp.addEventListener('input',function(){field.value=this.value;markDirty();});
+    row.querySelector('.fcopy')?.addEventListener('click',function(){navigator.clipboard.writeText(field.value||'').then(()=>{this.textContent='✓ Kopyalandı';this.classList.add('ok');setTimeout(()=>{this.textContent='Kopyala';this.classList.remove('ok');},1800);});});
+    row.querySelector('.fdel')?.addEventListener('click',()=>{confirmDel(`"${field.label}" alanını silmek istiyor musunuz?`,async()=>{try{await api('DELETE',`/fields/${field.id}`);currentRecord.fields.splice(fi,1);renderDetail();}catch(err){toast(err.message,'e')}});});
+  });
+  const addF=document.createElement('button');addF.id='add-field-btn';addF.innerHTML='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Yeni Alan Ekle';
+  addF.addEventListener('click',()=>{document.getElementById('mf-n').value='';openM('mf');setTimeout(()=>document.getElementById('mf-n').focus(),100);});
+  body.appendChild(addF);det.appendChild(body);
+}
+
+// ── SAVE ──────────────────────────────────────────────────────
+document.getElementById('save-btn').addEventListener('click',async()=>{
+  if(!currentRecord||!dirty)return;
+  try{
+    await api('PUT',`/records/${currentRecord.id}/full`,{name:currentRecord.name,fields:currentRecord.fields});
+    clearDirty();toast('Kaydedildi ✓','s');
+    renderSidebar();
+  }catch(err){toast(err.message,'e')}
+});
+
+// ── SEARCH ────────────────────────────────────────────────────
+document.getElementById('search-input').addEventListener('input',function(){document.getElementById('search-clear').style.display=this.value?'block':'none';renderSidebar();});
+document.getElementById('search-clear').addEventListener('click',()=>{document.getElementById('search-input').value='';document.getElementById('search-clear').style.display='none';renderSidebar();});
+
+// ── MODAL EVENTS ─────────────────────────────────────────────
+function confirmDel(msg,cb){confirmCb=cb;document.getElementById('mc-m').textContent=msg;openM('mc')}
+document.getElementById('mc-no').addEventListener('click',()=>closeM('mc'));
+document.getElementById('mc-yes').addEventListener('click',()=>{closeM('mc');confirmCb?.();confirmCb=null;});
+document.getElementById('mt-no').addEventListener('click',()=>closeM('mt'));
+document.getElementById('mt-yes').addEventListener('click',async()=>{const n=document.getElementById('mt-n').value.trim();if(!n)return;try{const{data}=await api('POST','/categories',{name:n});categories.push(data);activeTab=data.id;closeM('mt');renderTabs();renderSidebar();renderDetail();toast('Kategori eklendi','s')}catch(err){toast(err.message,'e')}});
+document.getElementById('mt-n').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('mt-yes').click()});
+document.getElementById('mr-no').addEventListener('click',()=>closeM('mr'));
+document.getElementById('mr-yes').addEventListener('click',async()=>{const n=document.getElementById('mr-n').value.trim();if(!n||!activeTab)return;try{const{data}=await api('POST',`/categories/${activeTab}/records`,{name:n});activeRecord=data.id;currentRecord=data;closeM('mr');renderSidebar();renderDetail();toast('Kayıt eklendi','s')}catch(err){toast(err.message,'e')}});
+document.getElementById('mr-n').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('mr-yes').click()});
+document.getElementById('mf-no').addEventListener('click',()=>closeM('mf'));
+document.getElementById('mf-yes').addEventListener('click',async()=>{const n=document.getElementById('mf-n').value.trim();if(!n||!activeRecord)return;const ft=document.querySelector('input[name=ftype]:checked').value;try{const{data}=await api('POST',`/records/${activeRecord}/fields`,{label:n,type:ft,value:''});currentRecord.fields.push(data);closeM('mf');renderDetail();markDirty();toast('Alan eklendi','s')}catch(err){toast(err.message,'e')}});
+document.getElementById('mf-n').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('mf-yes').click()});
+document.getElementById('add-rec-btn').addEventListener('click',()=>{if(!activeTab){toast('Önce bir kategori seçin','e');return;}document.getElementById('mr-n').value='';openM('mr');setTimeout(()=>document.getElementById('mr-n').focus(),100);});
+['mc','mt','mr','mf'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target===e.currentTarget)closeM(id)}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')['mc','mt','mr','mf'].forEach(closeM)});
+
+// ── EXPORT ────────────────────────────────────────────────────
+document.getElementById('export-btn').addEventListener('click',async()=>{
+  try{
+    const res=await fetch('/admin/export',{credentials:'include'});
+    if(!res.ok)throw new Error('Export failed');
+    const blob=await res.blob();const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=`desttek-export-${Date.now()}.json`;a.click();
+    URL.revokeObjectURL(url);toast('Export indirildi ✓','s');
+  }catch(err){toast(err.message,'e')}
+});
+
+// ── DB BACKUP ─────────────────────────────────────────────────
+document.getElementById('backup-btn').addEventListener('click',async()=>{
+  try{
+    const res=await fetch('/admin/backup',{credentials:'include'});
+    if(!res.ok)throw new Error('Backup failed');
+    const blob=await res.blob();const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=`desttek-backup-${Date.now()}.db`;a.click();
+    URL.revokeObjectURL(url);toast('DB Backup indirildi ✓','s');
+  }catch(err){toast(err.message,'e')}
+});
+
+// ── IMPORT (JSON) ─────────────────────────────────────────────
+document.getElementById('import-file').addEventListener('change',async function(){
+  const file=this.files[0];if(!file)return;
+  try{const text=await file.text();const data=JSON.parse(text);
+    await api('POST','/import',data);this.value='';
+    await loadCategories();toast('Import tamamlandı ✓','s');
+  }catch(err){toast('Import hatası: '+err.message,'e')}
+});
+
+// ── XLSX SIDEBAR IMPORT ───────────────────────────────────────
+document.getElementById('sidebar-import-file').addEventListener('change',async function(){
+  const file=this.files[0];if(!file||!activeTab){toast('Önce bir kategori seçin','e');return;}
+  const ext=file.name.split('.').pop().toLowerCase();
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try{
+      let names=[];
+      if(ext==='csv'){names=e.target.result.split(/\r?\n/).map(l=>l.split(',')[0].replace(/^"|"$/g,'').trim()).filter(Boolean);}
+      else{const wb=XLSX.read(e.target.result,{type:'binary'});const data=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});names=data.map(r=>String(r[0]||'').trim()).filter(Boolean);}
+      for(const name of names){await api('POST',`/categories/${activeTab}/records`,{name});}
+      this.value='';renderSidebar();toast(names.length+' başlık eklendi ✓','s');
+    }catch(err){toast('Import hatası: '+err.message,'e')}
+  };
+  if(ext==='csv')reader.readAsText(file,'utf-8');else reader.readAsBinaryString(file);
+});
+
+// ── INIT ──────────────────────────────────────────────────────
+tryAutoLogin();
+</script>
+</body>
+</html>

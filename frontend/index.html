@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title id="page-title">DESTTEK</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f4f8;--surface:#fff;--surface2:#f0f0f6;--border:#e2e2ee;
+  --accent:#6254e8;--accent2:#4e41cc;--accent-dim:rgba(98,84,232,.09);
+  --text:#1a1a2e;--text2:#4a4a68;--text3:#8888aa;
+  --success:#2aaa60;--radius:10px;--radius-sm:7px;
+  --shadow:0 2px 16px rgba(80,70,160,.08);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cacad8;border-radius:99px}
+
+#app{display:flex;flex-direction:column;min-height:100vh}
+
+/* HEADER */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+#app-name{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--accent);letter-spacing:-.02em}
+#search-wrap{flex:1;max-width:480px;margin-left:auto;position:relative}
+#search{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 36px 8px 36px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:all .2s}
+#search:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(98,84,232,.1)}
+.s-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+#search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 4px;border-radius:4px;display:none;line-height:1}
+#search-clear:hover{color:#d94f4f}
+
+/* LAYOUT */
+#layout{flex:1;display:flex;max-width:1200px;width:100%;margin:0 auto;padding:0}
+
+/* SIDEBAR */
+#sidebar{width:260px;min-width:260px;padding:20px 0;border-right:1px solid var(--border);background:var(--surface);position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+.cat-group{margin-bottom:4px}
+.cat-btn{width:100%;text-align:left;padding:9px 20px;background:none;border:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.cat-btn:hover{color:var(--accent);background:var(--accent-dim)}
+.cat-btn.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent);font-weight:600}
+.cat-count{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;float:right;margin-top:1px}
+
+/* MAIN */
+#main{flex:1;padding:24px;overflow-y:auto}
+
+/* Record list */
+#records-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+#records-list{display:flex;flex-direction:column;gap:6px}
+.rec-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.rec-item:hover{border-color:var(--accent);background:var(--accent-dim)}
+.rec-item.active{border-color:var(--accent);background:var(--accent-dim)}
+.rec-item-name{font-size:13px;font-weight:500;color:var(--text);flex:1;line-height:1.4}
+.rec-arrow{color:var(--text3);font-size:14px;flex-shrink:0;transition:transform .15s}
+.rec-item.active .rec-arrow{transform:rotate(90deg);color:var(--accent)}
+.rec-cat-badge{font-size:10px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;white-space:nowrap;flex-shrink:0}
+
+/* Detail */
+#detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-top:8px;overflow:hidden;display:none}
+#detail-panel.open{display:block}
+#detail-head{padding:14px 20px 12px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;gap:10px}
+#detail-head h2{font-size:15px;font-weight:600;flex:1;color:var(--text)}
+#detail-updated{font-size:11px;color:var(--text3);white-space:nowrap}
+#detail-fields{display:flex;flex-direction:column;gap:0}
+.dfield{border-bottom:1px solid var(--border)}
+.dfield:last-child{border-bottom:none}
+.dfield-label{padding:8px 20px 6px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.dfield-value{padding:12px 20px;font-size:13.5px;color:var(--text);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.dfield-value:empty::after{content:'—';color:var(--text3);font-style:italic}
+.copy-btn{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;transition:all .15s;flex-shrink:0}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.copy-btn.ok{border-color:var(--success);color:var(--success)}
+
+/* Search results */
+#search-results{display:none}
+#search-results-info{font-size:12px;color:var(--text3);margin-bottom:12px}
+
+/* Empty / loading states */
+.state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;text-align:center;color:var(--text3)}
+.state svg{opacity:.2}
+.state h3{font-size:16px;font-weight:600;color:var(--text2)}
+.state p{font-size:13px;line-height:1.6;max-width:280px}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+mark{background:rgba(98,84,232,.15);color:var(--accent2);border-radius:2px;padding:0 1px}
+
+@media(max-width:680px){
+  #sidebar{display:none}
+  #layout{flex-direction:column}
+  #main{padding:16px}
+  #search-wrap{max-width:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div id="app-name">DESTTEK</div>
+    <div id="search-wrap">
+      <span class="s-icon"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+      <input type="search" id="search" placeholder="Başlık veya içerik ara…" autocomplete="off" spellcheck="false">
+      <button id="search-clear" title="Temizle" aria-label="Aramayı temizle">×</button>
+    </div>
+  </header>
+
+  <div id="layout">
+    <nav id="sidebar" aria-label="Kategoriler">
+      <div id="cat-list"><div class="state"><div class="spinner"></div></div></div>
+    </nav>
+
+    <main id="main">
+      <!-- Normal view -->
+      <div id="normal-view">
+        <div id="records-title">Kayıtlar</div>
+        <div id="records-list"><div class="state"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><p>Sol menüden bir kategori seçin.</p></div></div>
+        <div id="detail-panel"></div>
+      </div>
+
+      <!-- Search view -->
+      <div id="search-view" style="display:none">
+        <div id="search-results-info"></div>
+        <div id="search-results"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const API = '/api';
+let allCategories = [];
+let activeCategory = null;
+let activeRecord = null;
+let searchTimer = null;
+
+// ── INIT ──────────────────────────────────────────────────────
+async function init() {
+  // Read app name from server health
+  try {
+    const h = await apiFetch('/health');
+    if (h.app) {
+      document.getElementById('app-name').textContent = h.app;
+      document.title = h.app;
+      document.getElementById('page-title').textContent = h.app;
+    }
+  } catch(_) {}
+
+  await loadCategories();
+}
+
+// ── API ───────────────────────────────────────────────────────
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(path.startsWith('/api') || path.startsWith('/health') ? path : API + path, opts);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// ── CATEGORIES ────────────────────────────────────────────────
+async function loadCategories() {
+  try {
+    const { data } = await apiFetch('/categories');
+    allCategories = data || [];
+    renderCategories();
+    if (allCategories.length > 0) selectCategory(allCategories[0].id);
+  } catch(err) {
+    document.getElementById('cat-list').innerHTML = '<div class="state"><p>Kategoriler yüklenemedi.</p></div>';
+  }
+}
+
+function renderCategories() {
+  const list = document.getElementById('cat-list');
+  if (!allCategories.length) {
+    list.innerHTML = '<div class="state"><p>Henüz kategori yok.</p></div>';
+    return;
+  }
+  list.innerHTML = allCategories.map(cat => `
+    <div class="cat-group">
+      <button class="cat-btn" data-id="${cat.id}" onclick="selectCategory('${cat.id}')">
+        ${escHtml(cat.name)}
+      </button>
+    </div>
+  `).join('');
+}
+
+async function selectCategory(id) {
+  activeCategory = id;
+  activeRecord = null;
+
+  // Update sidebar active state
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+
+  const list = document.getElementById('records-list');
+  list.innerHTML = '<div class="state"><div class="spinner"></div></div>';
+  document.getElementById('detail-panel').className = '';
+  document.getElementById('detail-panel').innerHTML = '';
+
+  try {
+    const { data, category } = await apiFetch(`/categories/${id}/records`);
+    document.getElementById('records-title').textContent = `${escHtml(category.name)} — ${data.length} kayıt`;
+    renderRecordList(data);
+  } catch(err) {
+    list.innerHTML = '<div class="state"><p>Kayıtlar yüklenemedi.</p></div>';
+  }
+}
+
+function renderRecordList(records) {
+  const list = document.getElementById('records-list');
+  if (!records.length) {
+    list.innerHTML = '<div class="state"><svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><p>Bu kategoride kayıt yok.</p></div>';
+    return;
+  }
+  list.innerHTML = records.map(r => `
+    <div class="rec-item" data-id="${r.id}" onclick="toggleRecord('${r.id}', this)">
+      <span class="rec-item-name">${escHtml(r.name)}</span>
+      <span class="rec-arrow">›</span>
+    </div>
+  `).join('');
+}
+
+async function toggleRecord(id, el) {
+  const panel = document.getElementById('detail-panel');
+  if (activeRecord === id) {
+    // Collapse
+    activeRecord = null;
+    panel.className = '';
+    panel.innerHTML = '';
+    el.classList.remove('active');
+    return;
+  }
+
+  // Deactivate previous
+  document.querySelectorAll('.rec-item.active').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  activeRecord = id;
+
+  panel.className = 'open';
+  panel.innerHTML = '<div class="state"><div class="spinner"></div></div>';
+
+  // Scroll to panel
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  try {
+    const { data } = await apiFetch(`/records/${id}`);
+    renderDetail(data, panel);
+  } catch(err) {
+    panel.innerHTML = '<div class="state"><p>Kayıt yüklenemedi.</p></div>';
+  }
+}
+
+function renderDetail(rec, container) {
+  const fields = rec.fields || [];
+  container.innerHTML = `
+    <div id="detail-head">
+      <h2>${escHtml(rec.name)}</h2>
+      <span id="detail-updated">${rec.updated_at ? 'Güncelleme: ' + fmt(rec.updated_at) : ''}</span>
+    </div>
+    <div id="detail-fields">
+      ${fields.map(f => `
+        <div class="dfield">
+          <div class="dfield-label">
+            <span>${escHtml(f.label)}</span>
+            ${f.label === 'KAYIT İÇERİĞİ' ? `<button class="copy-btn" data-copy="${escHtml(f.value)}">Kopyala</button>` : ''}
+          </div>
+          <div class="dfield-value">${escHtml(f.value)}</div>
+        </div>
+      `).join('')}
+    </div>`;
+  container.querySelector('#detail-fields')?.addEventListener('click', e => {
+    const btn = e.target.closest('.copy-btn');
+    if (btn) copyField(btn, btn.dataset.copy || '');
+  });
+}
+
+function copyField(btn, text) {
+  navigator.clipboard.writeText(text || '').then(() => {
+    btn.textContent = '✓ Kopyalandı'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Kopyala'; btn.classList.remove('ok'); }, 1800);
+  });
+}
+
+// ── SEARCH ────────────────────────────────────────────────────
+const searchInput = document.getElementById('search');
+const searchClear = document.getElementById('search-clear');
+
+searchInput.addEventListener('input', function() {
+  const q = this.value.trim();
+  searchClear.style.display = q ? 'block' : 'none';
+  clearTimeout(searchTimer);
+  if (!q) { showNormal(); return; }
+  searchTimer = setTimeout(() => doSearch(q), 300);
+});
+
+searchClear.addEventListener('click', () => {
+  searchInput.value = ''; searchClear.style.display = 'none'; showNormal();
+});
+
+async function doSearch(q) {
+  showSearchView();
+  const info = document.getElementById('search-results-info');
+  const results = document.getElementById('search-results');
+  results.innerHTML = '<div class="state"><div class="spinner"></div></div>';
+  info.textContent = '';
+
+  try {
+    const { data, count } = await apiFetch(`/search?q=${encodeURIComponent(q)}`);
+    info.textContent = `${count} sonuç bulundu: "${q}"`;
+    if (!data.length) {
+      results.innerHTML = '<div class="state"><p>Sonuç bulunamadı.</p></div>'; return;
+    }
+    const hl = (t) => escHtml(t).replace(new RegExp('('+escRe(q)+')', 'gi'), '<mark>$1</mark>');
+    results.innerHTML = data.map(r => `
+      <div class="rec-item" data-id="${r.id}" onclick="loadSearchRecord('${r.id}', '${escAttr(r.category_name)}', this)">
+        <span class="rec-item-name">${hl(r.name)}</span>
+        <span class="rec-cat-badge">${escHtml(r.category_name)}</span>
+        <span class="rec-arrow">›</span>
+      </div>
+    `).join('') + '<div id="search-detail-panel"></div>';
+  } catch(err) {
+    results.innerHTML = '<div class="state"><p>Arama başarısız.</p></div>';
+  }
+}
+
+async function loadSearchRecord(id, catName, el) {
+  const panel = document.getElementById('search-detail-panel');
+  if (!panel) return;
+
+  if (el.classList.contains('active')) {
+    el.classList.remove('active'); panel.className=''; panel.innerHTML=''; return;
+  }
+  document.querySelectorAll('.rec-item.active').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  panel.className = 'open'; panel.innerHTML = '<div class="state"><div class="spinner"></div></div>';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  try {
+    const { data } = await apiFetch(`/records/${id}`);
+    renderDetail(data, panel);
+  } catch(err) {
+    panel.innerHTML = '<div class="state"><p>Kayıt yüklenemedi.</p></div>';
+  }
+}
+
+function showNormal() {
+  document.getElementById('normal-view').style.display = '';
+  document.getElementById('search-view').style.display = 'none';
+  if (activeCategory) selectCategory(activeCategory);
+}
+function showSearchView() {
+  document.getElementById('normal-view').style.display = 'none';
+  document.getElementById('search-view').style.display = '';
+}
+
+// ── UTILS ────────────────────────────────────────────────────
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s) { return String(s||'').replace(/"/g,'&quot;'); }
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function fmt(d) { try { return new Date(d).toLocaleDateString('tr-TR'); } catch(_){ return d; } }
+
+init();
+</script>
+</body>
+</html>

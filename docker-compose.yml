@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  desttek:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: desttek-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    env_file:
+      - ./backend/.env
+    volumes:
+      # SQLite data persists here — back up this directory
+      - desttek_data:/app/data
+      # Optional: mount frontend/admin for hot updates without rebuild
+      - ./frontend:/app/../frontend:ro
+      - ./admin:/app/../admin:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp
+
+volumes:
+  desttek_data:
+    driver: local
